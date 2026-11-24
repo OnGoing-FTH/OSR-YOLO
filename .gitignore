@@ -1,0 +1,5 @@
+/Normal_images/
+/feature_library/outputs/visualizations
+feature_library/outputs/calibration/loo_scores.npz
+feature_library/outputs/calibration/threshold_distribution.png
+feature_library/outputs/bank

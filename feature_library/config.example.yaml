@@ -1,0 +1,31 @@
+# All paths are resolved relative to this YAML file unless absolute.
+paths:
+  normal_dir: ../Normal_images
+  train_dir: ../train_images
+  output_dir: ./outputs
+
+runtime:
+  device: auto # auto, cuda, cpu
+  batch_size: 4
+  num_workers: 0
+  seed: 42
+
+model:
+  input_size: 832
+  feature_dim: 256
+  spatial_neighbor_radius: 1
+  bank_dtype: float16
+
+calibration:
+  tau_low_percentile: 99.0
+  tau_low_margin: 0.05
+  tau_high_gap: 0.20
+  reported_percentiles: [95.0, 99.0, 99.5, 99.9]
+
+visualization:
+  max_normal_samples: 20
+  max_train_samples: 32
+  overlay_alpha: 0.45
+  top_k_regions: 8
+  min_region_area: 4
+  normal_alert_ratio: 0.001
