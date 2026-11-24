@@ -3,3 +3,9 @@
 feature_library/outputs/calibration/loo_scores.npz
 feature_library/outputs/calibration/threshold_distribution.png
 feature_library/outputs/bank
+8v6_front_test_data
+feature_library/outputs/anomaly_maps
+feature_library/phase3/runs
+/feature_library/phase4/exports
+feature_library/phase4/outputs_batch_val
+weights

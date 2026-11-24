@@ -1,7 +1,6 @@
 paths:
   normal_dir: ../Normal_images
-  # Replace with the actual training-image root before Phase 2.2.
-  train_dir: ../train_images
+  train_dir: ../8v6_front_test_data/images/train
   output_dir: ./outputs
 
 runtime:

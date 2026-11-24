@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
@@ -12,7 +13,7 @@ from src.anomaly_scoring import resize_anomaly_map, spatial_anomaly_map
 from src.config import image_paths, load_config
 from src.dataset import ImageDataset, collate_images
 from src.io_utils import ensure_dir, load_bank, relative_output_path, save_anomaly_map
-from src.visualization import save_anomaly_panel, save_html_report
+from src.visualization import save_anomaly_panel, save_html_report, save_threshold_distribution
 from src.wrn_feature_extractor import WRNSpatialFeatureExtractor
 
 
@@ -52,6 +53,7 @@ def main() -> None:
         raise ValueError("Bank metadata does not match config.model.input_size; rebuild the bank before caching maps.")
 
     dataset = ImageDataset(source_paths, input_size=input_size)
+    path_to_index = {str(path.resolve()): index for index, path in enumerate(source_paths)}
     loader = DataLoader(
         dataset,
         batch_size=int(runtime.get("batch_size", 4)),
@@ -65,7 +67,6 @@ def main() -> None:
     maps_root = ensure_dir(output_root / "anomaly_maps" / args.source)
     visuals_root = ensure_dir(output_root / "visualizations" / args.source)
     manifest: list[dict[str, object]] = []
-    report_rows: list[dict[str, object]] = []
     visualization_limit = int(config["visualization"].get(f"max_{args.source}_samples", 32))
 
     for batch_index, batch in enumerate(loader, start=1):
@@ -92,23 +93,28 @@ def main() -> None:
                 "high_ratio": high_ratio,
             }
             manifest.append(entry)
-            if len(report_rows) < visualization_limit:
-                visualization_path = visuals_root / relative.with_suffix(".png")
-                save_anomaly_panel(
-                    batch["image"][local_index],
-                    anomaly_104[local_index],
-                    anomaly_208[local_index],
-                    thresholds["tau_low"],
-                    thresholds["tau_high"],
-                    visualization_path,
-                    title=f"{entry['relative_image']} | max={entry['max_score']:.4f}",
-                    overlay_alpha=float(config["visualization"].get("overlay_alpha", 0.45)),
-                )
-                report_rows.append({"name": entry["relative_image"], "visualization": visualization_path, "max_score": entry["max_score"], "high_ratio": high_ratio})
         print(f"[{batch_index}/{len(loader)}] cached {len(batch['path'])} A_{output_size} map(s)")
 
     (maps_root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    save_html_report(report_rows, visuals_root / "index.html", f"{args.source.title()} anomaly-map QA")
+
+    ranked = sorted(manifest, key=lambda item: (item["max_score"], item["mean_score"]), reverse=True)[:visualization_limit]
+    report_rows = []
+    for entry in ranked:
+        image_path = Path(entry["image"])
+        sample = dataset[path_to_index[str(image_path.resolve())]]
+        features = extractor(sample["image"].unsqueeze(0).to(device))
+        anomaly_104 = spatial_anomaly_map(features, bank, neighbor_radius=int(metadata["neighbor_radius"]))
+        anomaly_208 = resize_anomaly_map(anomaly_104, output_size=output_size)
+        visualization_path = visuals_root / Path(entry["relative_image"]).with_suffix(".png")
+        save_anomaly_panel(
+            sample["image"], anomaly_104[0], anomaly_208[0], thresholds["tau_low"], thresholds["tau_high"], visualization_path,
+            title=f"{entry['relative_image']} | max={entry['max_score']:.4f}",
+            overlay_alpha=float(config["visualization"].get("overlay_alpha", 0.45)),
+        )
+        report_rows.append({"name": entry["relative_image"], "visualization": visualization_path, "max_score": entry["max_score"], "high_ratio": entry["high_ratio"]})
+    all_scores = np.concatenate([np.load(entry["anomaly_map"]).reshape(-1) for entry in manifest]).astype(np.float32)
+    save_threshold_distribution(all_scores, thresholds["tau_low"], thresholds["tau_high"], visuals_root / "train_score_distribution.png")
+    save_html_report(report_rows, visuals_root / "index.html", f"{args.source.title()} anomaly-map QA (top {len(report_rows)} by max score)")
     alert_ratio = float(config["visualization"].get("normal_alert_ratio", 0.001))
     if args.source == "normal":
         alerted = [entry for entry in manifest if entry["high_ratio"] > alert_ratio]

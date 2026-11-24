@@ -1,0 +1,43 @@
+model:
+  weights: /home/fth/yolov11segment/yolo11s-seg.pt
+  imgsz: 832
+
+data:
+  yaml: /home/fth/OSR-YOLO/8v6_front_test_data/data.yaml
+  anomaly_manifest: /home/fth/OSR-YOLO/feature_library/outputs/anomaly_maps/train/manifest.json
+
+osr:
+  tau_low: 0.07967019379138947
+  tau_high: 0.27967019379138947
+  lambda_anom: 1.0
+  enable_cls_ignore: true
+
+train:
+  epochs: 100
+  batch: 4
+  workers: 2
+  device: "0"
+  project: /home/fth/OSR-YOLO/feature_library/phase3/runs
+  name: yolo11s_seg_osr_832
+  pretrained: true
+  amp: true
+  cache: false
+  val: true
+  plots: true
+  seed: 42
+
+# Cached A_208 maps are direct-stretch aligned. Keep all geometry disabled.
+augment:
+  mosaic: 0.0
+  mixup: 0.0
+  copy_paste: 0.0
+  cutmix: 0.0
+  degrees: 0.0
+  translate: 0.0
+  scale: 0.0
+  shear: 0.0
+  perspective: 0.0
+  fliplr: 0.0
+  flipud: 0.0
+  multi_scale: 0.0
+  close_mosaic: 0

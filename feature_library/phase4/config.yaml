@@ -1,0 +1,20 @@
+model:
+  checkpoint: /home/fth/OSR-YOLO/feature_library/phase3/runs/phase3_smoke_1epoch/weights/best.pt
+  device: auto
+  input_size: 832
+
+inference:
+  known_conf_threshold: 0.25
+  known_iou_threshold: 0.70
+  known_max_det: 300
+  known_mask_dilate_px: 2
+  unknown_prob_threshold: 0.50
+  unknown_min_area_208: 4
+  unknown_max_area_ratio: 0.50
+  morph_kernel_size: 3
+  morph_open_iterations: 1
+  morph_close_iterations: 1
+
+paths:
+  source: /home/fth/OSR-YOLO/8v6_front_test_data/images/val
+  output_dir: /home/fth/OSR-YOLO/feature_library/phase4/outputs
