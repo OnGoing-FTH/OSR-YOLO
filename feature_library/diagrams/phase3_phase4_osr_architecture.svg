@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2020" viewBox="0 0 1800 2020" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 3 and Phase 4 Open-Set Anomaly Supervision Architecture</title>
+  <desc id="desc">A bright, non-overlapping flow diagram showing offline A 208 creation, Phase 3 anomaly supervision and TAL plus ATL-Ignore, and Phase 4 known plus unknown inference.</desc>
+  <defs>
+    <style>
+      .bg { fill:#f7f9fc; }
+      .section { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; }
+      .title { font:700 30px Arial, 'Microsoft YaHei', sans-serif; fill:#0f172a; }
+      .subtitle { font:700 21px Arial, 'Microsoft YaHei', sans-serif; fill:#0f172a; }
+      .label { font:700 17px Arial, 'Microsoft YaHei', sans-serif; fill:#0f172a; }
+      .text { font:15px Arial, 'Microsoft YaHei', sans-serif; fill:#334155; }
+      .small { font:13px Arial, 'Microsoft YaHei', sans-serif; fill:#475569; }
+      .tiny { font:12px Arial, 'Microsoft YaHei', sans-serif; fill:#475569; }
+      .box { stroke-width:2; rx:14; ry:14; }
+      .arrow { fill:none; stroke:#334155; stroke-width:3; marker-end:url(#arrow); }
+      .arrowBlue { fill:none; stroke:#2563eb; stroke-width:3; marker-end:url(#arrowBlue); }
+      .arrowOrange { fill:none; stroke:#ea580c; stroke-width:3; marker-end:url(#arrowOrange); }
+      .arrowPurple { fill:none; stroke:#a21caf; stroke-width:3; marker-end:url(#arrowPurple); }
+      .dashed { stroke-dasharray:8 6; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ea580c"/></marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#a21caf"/></marker>
+  </defs>
+
+  <rect class="bg" width="1800" height="2020"/>
+  <text x="900" y="52" text-anchor="middle" class="title">Phase 3 / Phase 4：开集异常监督与未知异常推理</text>
+  <text x="900" y="82" text-anchor="middle" class="text">固定坐标系：原图直接拉伸至 832×832；重点展示 A_208、异常分支、TAL 后 ATL-Ignore 与未知异常后处理</text>
+
+  <!-- Main flow -->
+  <rect x="36" y="112" width="1728" height="470" class="section" rx="18"/>
+  <text x="66" y="151" class="subtitle">总览：离线教师 → Phase 3 训练 → Phase 4 推理</text>
+
+  <rect x="75" y="205" width="235" height="100" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="192" y="240" text-anchor="middle" class="label">对齐图像</text>
+  <text x="192" y="268" text-anchor="middle" class="text">B×3×832×832</text>
+  <text x="192" y="290" text-anchor="middle" class="small">固定工位 / 直接拉伸</text>
+
+  <rect x="75" y="370" width="235" height="100" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="192" y="405" text-anchor="middle" class="label">正常空间特征库</text>
+  <text x="192" y="433" text-anchor="middle" class="text">Bank_Spatial</text>
+  <text x="192" y="455" text-anchor="middle" class="small">20×256×104×104</text>
+
+  <path d="M310 255 H365" class="arrowBlue"/>
+  <path d="M310 420 H365" class="arrowBlue"/>
+  <rect x="370" y="230" width="260" height="200" class="box" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="500" y="270" text-anchor="middle" class="label">Phase 2 离线局部匹配</text>
+  <text x="500" y="302" text-anchor="middle" class="text">WRN 查询：B×256×104×104</text>
+  <text x="500" y="327" text-anchor="middle" class="small">每一位置匹配 20×3×3=180 候选</text>
+  <text x="500" y="360" text-anchor="middle" class="text">A_104 → 双线性上采样</text>
+  <text x="500" y="390" text-anchor="middle" class="label">A_208：B×1×208×208</text>
+
+  <path d="M630 330 H690" class="arrowOrange"/>
+  <rect x="695" y="230" width="255" height="200" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="822" y="270" text-anchor="middle" class="label">Phase 3 数据集</text>
+  <text x="822" y="303" text-anchor="middle" class="text">manifest.json 按原图路径加载</text>
+  <text x="822" y="329" text-anchor="middle" class="text">A_208 → anom_prior</text>
+  <text x="822" y="356" text-anchor="middle" class="small">禁用 Mosaic / MixUp / 翻转 /</text>
+  <text x="822" y="378" text-anchor="middle" class="small">随机透视 / 多尺度，保持坐标对齐</text>
+
+  <path d="M950 330 H1015" class="arrowOrange"/>
+  <rect x="1020" y="190" width="330" height="280" class="box" fill="#f3e8ff" stroke="#a21caf"/>
+  <text x="1185" y="230" text-anchor="middle" class="label">Phase 3 OSRSegment</text>
+  <text x="1185" y="263" text-anchor="middle" class="text">标准已知类 YOLO-seg 路</text>
+  <text x="1185" y="294" text-anchor="middle" class="text">Proto 中间特征：B×256×208×208</text>
+  <rect x="1070" y="320" width="230" height="58" rx="10" fill="#fae8ff" stroke="#a21caf" stroke-width="2"/>
+  <text x="1185" y="345" text-anchor="middle" class="text">AnomalyHead：3×3 Conv 256→64</text>
+  <text x="1185" y="366" text-anchor="middle" class="text">+ 1×1 Conv 64→1</text>
+  <text x="1185" y="416" text-anchor="middle" class="label">anom_logits：B×1×208×208</text>
+  <text x="1185" y="442" text-anchor="middle" class="small">训练：BCE + Dice；推理：sigmoid</text>
+
+  <path d="M1350 330 H1410" class="arrowPurple"/>
+  <rect x="1415" y="230" width="285" height="200" class="box" fill="#fce7f3" stroke="#db2777"/>
+  <text x="1557" y="270" text-anchor="middle" class="label">Phase 3 训练损失</text>
+  <text x="1557" y="302" text-anchor="middle" class="text">L_box + L_seg + L_cls + L_dfl</text>
+  <text x="1557" y="330" text-anchor="middle" class="text">+ λ × (L_anom_bce + L_anom_dice)</text>
+  <text x="1557" y="360" text-anchor="middle" class="small">TAL + ATL-Ignore 见下方放大图</text>
+  <text x="1557" y="390" text-anchor="middle" class="small">λ_anom = 1.0</text>
+
+  <path d="M1185 470 V520 H1350" class="arrowPurple"/>
+  <rect x="1355" y="487" width="345" height="62" class="box" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="1527" y="514" text-anchor="middle" class="label">Phase 3 best.pt（含 anom_head 参数）</text>
+  <text x="1527" y="537" text-anchor="middle" class="small">Phase 4 读取同一个 checkpoint</text>
+
+  <!-- Zoom A -->
+  <rect x="36" y="615" width="1728" height="535" class="section" rx="18"/>
+  <text x="66" y="654" class="subtitle">放大图 A：208×208 异常像素监督与 Masked BCE / Dice</text>
+
+  <rect x="82" y="720" width="270" height="132" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="217" y="755" text-anchor="middle" class="label">已知标注 union</text>
+  <text x="217" y="785" text-anchor="middle" class="text">M_known：B×1×208×208</text>
+  <text x="217" y="811" text-anchor="middle" class="small">任何人工实例像素均为正</text>
+
+  <rect x="82" y="920" width="270" height="132" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="217" y="955" text-anchor="middle" class="label">离线异常先验</text>
+  <text x="217" y="985" text-anchor="middle" class="text">A：B×1×208×208</text>
+  <text x="217" y="1011" text-anchor="middle" class="small">tau_low=0.07967；tau_high=0.27967</text>
+
+  <path d="M352 786 H425 V850 H476" class="arrowOrange"/>
+  <path d="M352 986 H425 V850" class="arrowOrange"/>
+  <rect x="480" y="725" width="370" height="252" class="box" fill="#fff7ed" stroke="#f97316"/>
+  <text x="665" y="760" text-anchor="middle" class="label">监督区域构造</text>
+  <rect x="515" y="790" width="300" height="42" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="665" y="817" text-anchor="middle" class="text">Positive = M_known OR (A &gt; tau_high)</text>
+  <rect x="515" y="847" width="300" height="42" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="665" y="874" text-anchor="middle" class="text">Negative = NOT Positive AND (A &lt; tau_low)</text>
+  <rect x="515" y="904" width="300" height="42" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="665" y="931" text-anchor="middle" class="text">Ignore = tau_low ≤ A ≤ tau_high</text>
+  <text x="665" y="966" text-anchor="middle" class="small">valid = (Positive OR Negative) AND geom_valid</text>
+
+  <path d="M850 850 H920" class="arrowPurple"/>
+  <rect x="925" y="720" width="350" height="260" class="box" fill="#fae8ff" stroke="#a21caf"/>
+  <text x="1100" y="755" text-anchor="middle" class="label">异常头输出</text>
+  <text x="1100" y="785" text-anchor="middle" class="text">Z = anom_logits：B×1×208×208</text>
+  <text x="1100" y="818" text-anchor="middle" class="text">P = sigmoid(Z) × valid</text>
+  <line x1="960" y1="840" x2="1240" y2="840" stroke="#d8b4fe" stroke-width="2"/>
+  <text x="1100" y="875" text-anchor="middle" class="text">L_bce = Σ[BCEWithLogits(Z,target)×valid] / Σvalid</text>
+  <text x="1100" y="912" text-anchor="middle" class="text">L_dice = 1 − (2Σ(P×T)+ε)/(ΣP+ΣT+ε)</text>
+  <text x="1100" y="946" text-anchor="middle" class="small">Dice 只平均具有正有效像素的图像；纯负 batch 的 Dice=0</text>
+
+  <path d="M1275 850 H1345" class="arrowPurple"/>
+  <rect x="1350" y="745" width="350" height="210" class="box" fill="#fce7f3" stroke="#db2777"/>
+  <text x="1525" y="782" text-anchor="middle" class="label">总损失</text>
+  <text x="1525" y="820" text-anchor="middle" class="text">L_total = L_box + L_seg + L_cls + L_dfl</text>
+  <text x="1525" y="850" text-anchor="middle" class="text">+ λ_anom × (L_anom_bce + L_anom_dice)</text>
+  <text x="1525" y="885" text-anchor="middle" class="small">已知类损失保持原路径；异常损失是旁路像素监督</text>
+  <text x="1525" y="916" text-anchor="middle" class="small">当前 λ_anom=1.0</text>
+
+  <rect x="480" y="1015" width="1220" height="83" rx="12" fill="#fff1f2" stroke="#fb7185" stroke-width="2"/>
+  <text x="510" y="1049" class="label" fill="#9f1239">当前校准限制：</text>
+  <text x="670" y="1049" class="text">当前训练图 A_208 最大值低于 tau_high，因此 teacher pseudo-positive = 0；异常正样本主要来自人工已知实例 union mask。</text>
+  <text x="510" y="1078" class="small">这不影响流程正确性，但说明正式未知异常教师正样本需在后续独立阈值再标定后才会生效。</text>
+
+  <!-- Zoom B -->
+  <rect x="36" y="1185" width="1728" height="370" class="section" rx="18"/>
+  <text x="66" y="1224" class="subtitle">放大图 B：TAL 完成已知正样本分配后，ATL-Ignore 在三尺度屏蔽可疑背景负样本</text>
+
+  <rect x="80" y="1284" width="285" height="145" class="box" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="222" y="1321" text-anchor="middle" class="label">标准 TAL（先执行）</text>
+  <text x="222" y="1352" text-anchor="middle" class="text">pred score / box + 人工 GT</text>
+  <text x="222" y="1380" text-anchor="middle" class="text">→ fg_mask：B×14196</text>
+  <text x="222" y="1408" text-anchor="middle" class="small">fg_mask=True 保留标准已知类 BCE</text>
+
+  <rect x="460" y="1268" width="270" height="175" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="595" y="1305" text-anchor="middle" class="label">A_208 max pooling</text>
+  <text x="595" y="1337" text-anchor="middle" class="text">2×2 → P3：104×104</text>
+  <text x="595" y="1363" text-anchor="middle" class="text">4×4 → P4：52×52</text>
+  <text x="595" y="1389" text-anchor="middle" class="text">8×8 → P5：26×26</text>
+  <text x="595" y="1417" text-anchor="middle" class="small">flatten + concat → A_flat：B×14196</text>
+
+  <path d="M365 1356 H820" class="arrowBlue"/>
+  <path d="M730 1356 H820" class="arrowOrange"/>
+  <rect x="825" y="1268" width="410" height="175" class="box" fill="#f3e8ff" stroke="#7c3aed"/>
+  <text x="1030" y="1305" text-anchor="middle" class="label">ATL-Ignore 分类权重</text>
+  <text x="1030" y="1338" text-anchor="middle" class="text">suspicious_negative = (NOT fg_mask)</text>
+  <text x="1030" y="1362" text-anchor="middle" class="text">AND (A_flat ≥ tau_low)</text>
+  <text x="1030" y="1392" text-anchor="middle" class="text">w=0：可疑未标注异常背景</text>
+  <text x="1030" y="1418" text-anchor="middle" class="text">w=1：普通背景或 TAL 已知正样本</text>
+
+  <path d="M1235 1356 H1300" class="arrowPurple"/>
+  <rect x="1305" y="1268" width="395" height="175" class="box" fill="#ecfdf5" stroke="#059669"/>
+  <text x="1502" y="1305" text-anchor="middle" class="label">只改变分类 BCE</text>
+  <text x="1502" y="1338" text-anchor="middle" class="text">L_cls = Σ[BCE(pred_scores,target_scores)×w]</text>
+  <text x="1502" y="1365" text-anchor="middle" class="text">/ max(Σ target_scores, 1)</text>
+  <text x="1502" y="1400" text-anchor="middle" class="small">不产生 pseudo box / pseudo polygon</text>
+  <text x="1502" y="1425" text-anchor="middle" class="small">不进入第二轮 TAL；不新增第 9 类</text>
+
+  <rect x="80" y="1475" width="1620" height="47" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="890" y="1506" text-anchor="middle" class="text">核心目的：不把 A_208 已提示为可疑、但未标注为已知类的区域，强行训练成“所有已知类都不是”的背景。</text>
+
+  <!-- Zoom C -->
+  <rect x="36" y="1590" width="1728" height="390" class="section" rx="18"/>
+  <text x="66" y="1629" class="subtitle">放大图 C：Phase 4 推理，已知实例抑制后生成 unknown_anomaly</text>
+
+  <rect x="80" y="1690" width="255" height="135" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="207" y="1727" text-anchor="middle" class="label">Phase 3 checkpoint</text>
+  <text x="207" y="1756" text-anchor="middle" class="text">832×832 直接拉伸推理</text>
+  <text x="207" y="1784" text-anchor="middle" class="small">同一模型并行输出两条分支</text>
+
+  <path d="M335 1730 H405 V1684 H465" class="arrowBlue"/>
+  <path d="M335 1782 H405 V1841 H465" class="arrowPurple"/>
+
+  <rect x="470" y="1655" width="310" height="130" class="box" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="625" y="1692" text-anchor="middle" class="label">已知类分支</text>
+  <text x="625" y="1722" text-anchor="middle" class="text">NMS → box / class / confidence</text>
+  <text x="625" y="1750" text-anchor="middle" class="text">实例 mask_832</text>
+
+  <rect x="470" y="1810" width="310" height="130" class="box" fill="#fae8ff" stroke="#a21caf"/>
+  <text x="625" y="1847" text-anchor="middle" class="label">异常分支</text>
+  <text x="625" y="1877" text-anchor="middle" class="text">anom_logits → sigmoid</text>
+  <text x="625" y="1905" text-anchor="middle" class="text">anom_prob：1×208×208</text>
+
+  <path d="M780 1720 H845 V1760 H905" class="arrowBlue"/>
+  <path d="M780 1875 H845 V1815 H905" class="arrowPurple"/>
+  <rect x="910" y="1700" width="325" height="190" class="box" fill="#fff7ed" stroke="#f97316"/>
+  <text x="1072" y="1737" text-anchor="middle" class="label">known-mask suppress</text>
+  <text x="1072" y="1767" text-anchor="middle" class="text">mask_832 → nearest resize → 208</text>
+  <text x="1072" y="1794" text-anchor="middle" class="text">dilate（半径 2 px）</text>
+  <text x="1072" y="1821" text-anchor="middle" class="text">residual = anom_prob</text>
+  <text x="1072" y="1848" text-anchor="middle" class="text">residual[known_mask]=0</text>
+
+  <path d="M1235 1795 H1305" class="arrowOrange"/>
+  <rect x="1310" y="1655" width="390" height="270" class="box" fill="#fce7f3" stroke="#db2777"/>
+  <text x="1505" y="1692" text-anchor="middle" class="label">unknown_anomaly 提取</text>
+  <text x="1505" y="1724" text-anchor="middle" class="text">threshold ≥ 0.50</text>
+  <text x="1505" y="1750" text-anchor="middle" class="text">3×3 morphology open + close</text>
+  <text x="1505" y="1776" text-anchor="middle" class="text">8-connectivity connected components</text>
+  <text x="1505" y="1802" text-anchor="middle" class="text">面积过滤：4 ≤ area ≤ 0.5×208²</text>
+  <text x="1505" y="1837" text-anchor="middle" class="text">每个组件：mask / bbox / peak / mean</text>
+  <text x="1505" y="1865" text-anchor="middle" class="text">映射回原图尺寸，class_id=null</text>
+  <text x="1505" y="1896" text-anchor="middle" class="small">JSON + overlay + heatmap + residual + gallery</text>
+</svg>

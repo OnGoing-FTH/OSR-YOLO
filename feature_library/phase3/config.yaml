@@ -13,8 +13,8 @@ osr:
   enable_cls_ignore: true
 
 train:
-  epochs: 100
-  batch: 4
+  epochs: 200
+  batch: 8
   workers: 2
   device: "0"
   project: /home/fth/OSR-YOLO/feature_library/phase3/runs

@@ -1,5 +1,5 @@
 model:
-  checkpoint: /home/fth/OSR-YOLO/feature_library/phase3/runs/phase3_smoke_1epoch/weights/best.pt
+  checkpoint: /home/fth/OSR-YOLO/feature_library/phase3/runs/yolo11s_seg_osr_832/weights/best.pt
   device: auto
   input_size: 832
 
